@@ -20,8 +20,8 @@ public class SimpleDraw extends JPanel implements Runnable {
     private final int FRAME_DELAY = 50; // 50 ms = 20 FPS
     private DrawGraphics draw;
 	
-	public static final int WIDTH = 500; 
-    public static final int HEIGHT = 500;
+	public static final int WIN_WIDTH =  500; 
+    public static final int WIN_HEIGHT = 500;
     
 	public SimpleDraw(DrawGraphics drawer) {
         this.draw = drawer;
@@ -74,10 +74,7 @@ public class SimpleDraw extends JPanel implements Runnable {
         Color bgColor = Color.white;
         frame.setBackground(bgColor);
         content.setBackground(bgColor);
-        // content.setSize(WIDTH, HEIGHT);
-        // content.setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        content.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        // frame.setSize(WIDTH, HEIGHT);
+        content.setPreferredSize(new Dimension(WIN_WIDTH, WIN_HEIGHT));
         frame.setContentPane(content);
         frame.setResizable(false);
         frame.pack();

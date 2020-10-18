@@ -3,65 +3,75 @@ Grid class that creates Grid structure for GoL World
 
 Has Draw method that gets called 20x a sec to update screen
 
-1. Survivals. Every counter with two or three neighboring counters survives for the next generation.
-2. Deaths. Each counter with four or more neighbors dies (is removed) from overpopulation. Every counter with
-   one neighbor or none dies from isolation.
-3. Births. Each empty cell adjacent to exactly three neighbors--no more, no fewer--is a birth cell. A counter is
-   placed on it at the next move. 
-
+Added requirment that the outside border of the maze must be all wall
 */
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.Random;
 
-//TODO What does BouncingBox.java import ???
 
 public class Grid {
 
-	// TODO: match these to real width and height 
-    public static final int WIDTH =  20;
-    public static final int HEIGHT = 20;
-    public static final int PROB =   30;
-    Random rand = new Random();
-	
-    private Graphics2D g2D; // TODO should this be private in BouncingBox ??
-
+    public static int WIDTH; 
+    public static int HEIGHT; 
+    
+    private Graphics2D g2D; 
     private int[][] grid;
     private int[][] buffer;
 	
     Grid(){
+        //Maze maze = new Maze(Maze.Small);
+        Maze maze = new Maze(Maze.Big); // If we wanted big maze
+        WIDTH = maze.getWidth();
+        HEIGHT = maze.getHeight();
+
 		grid = new int[WIDTH][HEIGHT];
         buffer = new int[WIDTH][HEIGHT];
         
-        
-        grid = Maze.getMaze();
-        
+        grid = maze.getMaze(); 
     }
 	
 	
 	public void update(){
-       int neighbors = 0;
+        int bp = 0;
 
         for(int x = 1; x < WIDTH-1; x++){
             for(int y = 1; y < HEIGHT-1; y++){
-                buffer[x][y] = 0;
 
-                // Find the number of neighbors of the current generation
-                neighbors = grid[x-1][y-1]+grid[x-1][y+0]+grid[x-1][y+1]+grid[x+0][y-1]+grid[x+0][y+1]+grid[x+1][y-1]+grid[x+1][y+0]+grid[x+1][y+1];
-				
-                // conditions based on # of neighbors 
-                // set buffer either ALIVE or DEAD
-                if(grid[x][y]==0 && neighbors == 3){ // New cell is "born"
-                    buffer[x][y] = 1;
+                // First, check if an open cell
+                if(grid[x][y] == Maze.OPEN){
+
+                    // TODO make into a neighbors int[4] array
+                    int neighbors = 0;
+
+                    if(grid[x-1][y] == Maze.FOUND){
+                        neighbors++;
+                    }
+                    if(grid[x][y-1] == Maze.FOUND){
+                        neighbors++;
+                    }
+                    if(grid[x][y+1] == Maze.FOUND){
+                        neighbors++;
+                    }
+                    if(grid[x+1][y] == Maze.FOUND){
+                        neighbors++;
+                    }
+
+                    // If undiscovered cells borders a found cell
+                    if(neighbors>0){
+                        // Touching live node, declare as found 
+                        buffer[x][y] = Maze.FOUND;
+                    }
+                    else{
+                        // Not touching any nodes, remain the same
+                        buffer[x][y] = grid[x][y];
+                    }
                 }
-                else if(neighbors >= 4 || neighbors <= 1){ // Over/under population
-                    buffer[x][y] = 0;
-                }
-                else{ // Remains alive "survives" or dead cell reamains dead
+                else{
+                    // Otherwise remain same state
                     buffer[x][y] = grid[x][y];
-                }    
+                }   
             }
         }
 		
@@ -83,11 +93,26 @@ public class Grid {
 
                 Cell cell = new Cell(x*Cell.SCALE,y*Cell.SCALE);
                 
-                if(grid[x][y] == 1){
-                    g2D.setColor(Color.BLACK);
-                }
-                else{
-                    g2D.setColor(Color.WHITE);
+                //TODO: look into overwriting color rahter than redrawing everytime
+
+                //TODO: if part of algo set to blue
+                switch (grid[x][y])
+                {
+                    case Maze.OPEN:
+                        g2D.setColor(Color.WHITE);
+                        break;
+
+                    case Maze.WALL:
+                        g2D.setColor(Color.BLACK);
+                        break;
+
+                    case Maze.FOUND:
+                        g2D.setColor(Color.BLUE);
+                        break;
+
+                    case Maze.GOAL:
+                        g2D.setColor(Color.YELLOW);
+                        break;
                 }
                 g2D.fill(cell.getShape());
 
